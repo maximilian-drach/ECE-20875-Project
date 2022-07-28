@@ -242,7 +242,7 @@ def bridge_regression(Y_bridge, X_Mt, X_Pr):
     """
     return l1, l2, pr_coef, mt_coef, trn_mean, trn_std
 
-def rain_temp_cluster(df):
+def rain_temp_cluster(df, num_clusters=5):
     total = df[['Precipitation','Mean Temp']].values
     std = np.std(total, axis=0)
     mean = np.mean(total, axis=0)
@@ -253,22 +253,20 @@ def rain_temp_cluster(df):
         k_means.fit(total)
         SSE_list.append(k_means.inertia_)
     
-    # plt.plot(np.arange(1,11),SSE_list)
-    # plt.xlabel('Clusters')
-    # plt.ylabel('SSE')
-    # plt.show() #the ideal cluster is 3
+    plt.plot(np.arange(1,11),SSE_list)
+    plt.xlabel('Clusters')
+    plt.ylabel('SSE')
+    plt.show() #the ideal cluster is 3 or 5
 
-    k_means = KMeans(n_clusters=5,init='k-means++', random_state=0)
+    k_means = KMeans(n_clusters=num_clusters,init='k-means++', random_state=0)
     k_means.fit(total)
     cluster_data = k_means.labels_ #append on to the you data
-    #print(cluster_data)
     cluster_locations = k_means.cluster_centers_
-    #print(cluster_locations)
-    df['weather_cluster'] = cluster_data.tolist()
-    #reorders the data, to make it visually easier
+    df['weather_cluster'] = cluster_data.tolist() #adds the clustered data to the list
     
+    #reorders the data, to make it visually easier
     df = df[["Date","Day","High Temp","Low Temp","Mean Temp","Precipitation","weather_cluster","Brooklyn Bridge","Manhattan Bridge","Williamsburg Bridge","Queensboro Bridge","Total","BB_share","MB_share","QB_share","WB_share"]]
-    return df
+    return df, cluster_locations
 
 def weather_bridge_precentage(df_clusterd, bridge_dict):
 
@@ -303,7 +301,7 @@ def weather_bridge_precentage(df_clusterd, bridge_dict):
     for i in range(4): #gets cluster percentage
         cluster_df[f"{i}p"] = cluster_df[i] / total_riders[i]
     
-
+    #stores the data from all the bridges in a dictionary, where each bridge intitals is key to both their plot coefs & bridge statistics
     bridge_complete_dictionary = {'BB': {"coef":bridge_dict['BB'], "stats":{'total_riders':total_riders[0], 'cluster_rider_amnt':cluster_df[0].tolist(), 'cluster_rider_percentage':cluster_df['0p'].to_list()}}}
     bridge_complete_dictionary['MB'] = {"coef":bridge_dict['MB'], "stats":{'total_riders':total_riders[1], 'cluster_rider_amnt':cluster_df[1].tolist(), 'cluster_rider_percentage':cluster_df['1p'].to_list()}}
     bridge_complete_dictionary['WB'] = {"coef":bridge_dict['WB'], "stats":{'total_riders':total_riders[2], 'cluster_rider_amnt':cluster_df[2].tolist(), 'cluster_rider_percentage':cluster_df['2p'].to_list()}}
@@ -317,10 +315,9 @@ def main():
     with open("bridge_weather_coef.txt") as file:
        bridge_dict = json.loads(file.read())
     
-    df_clusterd = rain_temp_cluster(df)
-    df, bridge_dictionary = weather_bridge_precentage(df_clusterd, bridge_dict)
+    df_clusterd, cluster_centers = rain_temp_cluster(df, 5) #gets the weather clusters and the cluster centers, ideally either 3 or 5
+    df, bridge_dictionary = weather_bridge_precentage(df_clusterd, bridge_dict) #gets the bridge statistics
 
-    print(bridge_dictionary)
     # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_BB, X_Mt, X_Pr)
     # bridge_dict = {"BB":{"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}}
     # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_MB, X_Mt, X_Pr)
