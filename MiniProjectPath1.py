@@ -304,11 +304,11 @@ def weather_bridge_precentage(df_clusterd, bridge_dict):
         cluster_df[f"{i}p"] = cluster_df[i] / total_riders[i]
     
 
-    bridge_complete_dictionary = {'BB': {"coef":bridge_dict['BB'], "stats":{'total':total_riders[0], 'cluster_amnt':cluster_df[0].tolist(), 'cluster_percentage':cluster_df['0p'].to_list()}}}
-    bridge_complete_dictionary['MB'] = {"coef":bridge_dict['MB'], "stats":{'total':total_riders[1], 'cluster_amnt':cluster_df[1].tolist(), 'cluster_percentage':cluster_df['1p'].to_list()}}
-    bridge_complete_dictionary['WB'] = {"coef":bridge_dict['WB'], "stats":{'total':total_riders[2], 'cluster_amnt':cluster_df[2].tolist(), 'cluster_percentage':cluster_df['2p'].to_list()}}
-    bridge_complete_dictionary['QB'] = {"coef":bridge_dict['QB'], "stats":{'total':total_riders[3], 'cluster_amnt':cluster_df[3].tolist(), 'cluster_percentage':cluster_df['3p'].to_list()}}
-    
+    bridge_complete_dictionary = {'BB': {"coef":bridge_dict['BB'], "stats":{'total_riders':total_riders[0], 'cluster_rider_amnt':cluster_df[0].tolist(), 'cluster_rider_percentage':cluster_df['0p'].to_list()}}}
+    bridge_complete_dictionary['MB'] = {"coef":bridge_dict['MB'], "stats":{'total_riders':total_riders[1], 'cluster_rider_amnt':cluster_df[1].tolist(), 'cluster_rider_percentage':cluster_df['1p'].to_list()}}
+    bridge_complete_dictionary['WB'] = {"coef":bridge_dict['WB'], "stats":{'total_riders':total_riders[2], 'cluster_rider_amnt':cluster_df[2].tolist(), 'cluster_rider_percentage':cluster_df['2p'].to_list()}}
+    bridge_complete_dictionary['QB'] = {"coef":bridge_dict['QB'], "stats":{'total_riders':total_riders[3], 'cluster_rider_amnt':cluster_df[3].tolist(), 'cluster_rider_percentage':cluster_df['3p'].to_list()}}
+    bridge_complete_dictionary['Documentation'] = {'coef':{'l1':'The weight of the inverse exponential for percipitation', 'l2':'The weight of the linear plot for mean temp', 'pr_coef':'pr_coef[0] the coeficient for the exponent, pr_coef[1] the coef for the mutltiper', 'mt_coef':'coef for the mean temp plot'}, 'stats':{'total':'total riders on the bridge for the total data set', 'cluster_rider_amnt':'the total amnt of riders for each cluster (list value 0 stores the amnt for the cluster 0)', 'cluster_rider_percentage':'the precentage of total riders for the bridge which rode in set cluster conditions'}}
     return df_clusterd, bridge_complete_dictionary
 
 def main():
@@ -319,8 +319,8 @@ def main():
     
     df_clusterd = rain_temp_cluster(df)
     df, bridge_dictionary = weather_bridge_precentage(df_clusterd, bridge_dict)
-    
-    
+
+    print(bridge_dictionary)
     # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_BB, X_Mt, X_Pr)
     # bridge_dict = {"BB":{"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}}
     # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_MB, X_Mt, X_Pr)
