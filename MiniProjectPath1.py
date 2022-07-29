@@ -309,6 +309,55 @@ def weather_bridge_precentage(df_clusterd, bridge_dict):
     bridge_complete_dictionary['Documentation'] = {'coef':{'l1':'The weight of the inverse exponential for percipitation', 'l2':'The weight of the linear plot for mean temp', 'pr_coef':'pr_coef[0] the coeficient for the exponent, pr_coef[1] the coef for the mutltiper', 'mt_coef':'coef for the mean temp plot'}, 'stats':{'total':'total riders on the bridge for the total data set', 'cluster_rider_amnt':'the total amnt of riders for each cluster (list value 0 stores the amnt for the cluster 0)', 'cluster_rider_percentage':'the precentage of total riders for the bridge which rode in set cluster conditions'}}
     return df_clusterd, bridge_complete_dictionary
 
+def day_of_week(df, num_bicyclists):
+    
+    #calculating average for each day, adds new column with only data from each day of the week
+    df['Fridays'] = pd.DataFrame(df['Total'][0::7])
+    friday_data = df['Fridays']
+    #print(friday_data)
+    friday_avg = int(friday_data.mean())
+    #print ("Friday Mean: ", friday_avg)
+    
+    df['Saturdays'] = pd.DataFrame(df['Total'][1::7])
+    saturday_data = df['Saturdays']
+    #print(saturday_data)
+    saturday_avg = int(saturday_data.mean())
+    #print ("Saturday Mean: ", saturday_avg)
+    
+    df['Sundays'] = pd.DataFrame(df['Total'][2::7])
+    sunday_data = df['Sundays']
+    #print(sunday_data)
+    sunday_avg = int(sunday_data.mean())
+    #print ("Sunday Mean: ", sunday_avg)
+    
+    df['Mondays'] = pd.DataFrame(df['Total'][3::7])
+    monday_data = df['Mondays']
+    #print(monday_data)
+    monday_avg = int(monday_data.mean())
+    #print ("Monday Mean: ", monday_avg)
+    
+    df['Tuesdays'] = pd.DataFrame(df['Total'][4::7])
+    tuesday_data = df['Tuesdays']
+    #print(tuesday_data)
+    tuesday_avg = int(tuesday_data.mean())
+    #print ("Tuesday Mean: ", tuesday_avg)
+    
+    df['Wednesdays'] = pd.DataFrame(df['Total'][5::7])
+    wednesday_data = df['Wednesdays']
+    #print(wednesday_data)
+    wednesday_avg = int(wednesday_data.mean())
+    #print ("Wednesday Mean: ", wednesday_avg)
+    
+    df['Thursdays'] = pd.DataFrame(df['Total'][6::7])
+    thursday_data = df['Thursdays']
+    #print(thursday_data)
+    thursday_avg = int(thursday_data.mean())
+    #print ("Thursday Mean: ", thursday_avg)
+    
+    daily_avg_dictionary = {friday_avg:'Friday', saturday_avg:'Saturday', sunday_avg:'Sunday', monday_avg:'Monday', tuesday_avg:'Tuesday', wednesday_avg:'Wednesday', thursday_avg:'Thursday'} #dictionary to map each average value to outputtable string
+    traffic = lambda input_traffic: daily_avg_dictionary.get(min(daily_avg_dictionary, key = lambda x: abs(x - input_traffic))) #finds which value is the least distance from the input value
+    return traffic(num_bicyclists)
+
 def main():
     [df, X_Lt,X_Ht,X_Mt,X_Pr, Y_BB,Y_MB,Y_QB,Y_WB] = data()
 
@@ -335,10 +384,8 @@ def main():
 
     #cluster_rider_prcnt * market_share == weight for each bridge
     #sum up the weight and dived by the number of number of dataset
-
-
     
-    
+    #print("Today is: ", day_of_week(df, 14000)) #returns predicted day of the week based on number of riders in a given day, 14000 as an example
 
 if __name__ == "__main__":
     main()
