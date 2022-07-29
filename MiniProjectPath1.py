@@ -131,7 +131,7 @@ def bridge_regression(Y_bridge, X_Mt, X_Pr):
     ind = MSE_l.index(min(MSE_l))
     l1 = l1_list[ind]
     l2 = l2_list[ind]
-    #print(f" l1 = {l1} l2 = {l2} MSE = {MSE_l[ind]}")
+    print(f" l1 = {l1} l2 = {l2} MSE = {MSE_l[ind]}")
 
     #test = np.array([[75, 1]])
     #print(test.shape)
@@ -312,7 +312,7 @@ def weather_bridge_precentage(df_clusterd, bridge_dict):
 def main():
     [df, X_Lt,X_Ht,X_Mt,X_Pr, Y_BB,Y_MB,Y_QB,Y_WB] = data()
 
-    with open("bridge_weather_coef.txt") as file:
+    with open("bridge_weather_coef.json") as file:
        bridge_dict = json.loads(file.read())
     
     df_clusterd, cluster_centers = rain_temp_cluster(df, 5) #gets the weather clusters and the cluster centers, ideally either 3 or 5
@@ -320,17 +320,18 @@ def main():
     print(df)
     print(bridge_dictionary['Documentation'])
     print(rider_prediction(bridge_dictionary['BB']['coef'], 73,.01))
-    # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_BB, X_Mt, X_Pr)
-    # bridge_dict = {"BB":{"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}}
-    # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_MB, X_Mt, X_Pr)
-    # bridge_dict['MB'] = {"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}
-    # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_QB, X_Mt, X_Pr)
-    # bridge_dict['QB'] = {"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}
-    # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_WB, X_Mt, X_Pr)
-    # bridge_dict['WB'] = {"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}
     
-    # with open("bridge_weather_coef.txt", "w") as file:
-    #     file.write(json.dumps(bridge_dict))
+    [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_BB, X_Mt, X_Pr)
+    bridge_dict = {"BB":{"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}}
+    [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_MB, X_Mt, X_Pr)
+    bridge_dict['MB'] = {"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}
+    [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_QB, X_Mt, X_Pr)
+    bridge_dict['QB'] = {"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}
+    [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_WB, X_Mt, X_Pr)
+    bridge_dict['WB'] = {"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}
+    
+    with open("bridge_weather_coef.json", "w") as file:
+        file.write(json.dumps(bridge_dict))
 
     #cluster_rider_prcnt * market_share == weight for each bridge
     #sum up the weight and dived by the number of number of dataset
