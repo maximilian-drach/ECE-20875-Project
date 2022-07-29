@@ -69,7 +69,7 @@ def normalize_test(X_test, trn_mean, trn_std):
 def rider_prediction(Bridge_coef_data, mean_temp, precipitation):
     l1, l2, pr_coef, mt_coef, mean, std = (Bridge_coef_data['l1'], Bridge_coef_data['l2'], Bridge_coef_data['pr_coef'], Bridge_coef_data['mt_coef'], Bridge_coef_data['trn_mean'], Bridge_coef_data['trn_std'])
     (Nmean_temp, Nprecipitation) = tuple(normalize_test(np.array([[mean_temp, precipitation]]), mean, std).T)
-    test = np.array([[75, 1]])
+    #test = np.array([[75, 1]])
     #print(test.shape)
     #print(trn_mean.shape)
     #print(trn_mean.shape)
@@ -77,7 +77,7 @@ def rider_prediction(Bridge_coef_data, mean_temp, precipitation):
     #print(f"{(l1*pr_coef[1]*(np.exp(pr_coef[0]*test[1]))) + (l2*mt_coef[0]*test[0])}")
     riders_predicted = l1*pr_coef[1]*(np.exp(pr_coef[0]*Nprecipitation)) + (l2*mt_coef[0]*Nmean_temp)
     
-    return riders_predicted
+    return riders_predicted[0]
     
 
 def bridge_regression(Y_bridge, X_Mt, X_Pr):
@@ -131,7 +131,7 @@ def bridge_regression(Y_bridge, X_Mt, X_Pr):
     ind = MSE_l.index(min(MSE_l))
     l1 = l1_list[ind]
     l2 = l2_list[ind]
-    print(f" l1 = {l1} l2 = {l2} MSE = {MSE_l[ind]}")
+    #print(f" l1 = {l1} l2 = {l2} MSE = {MSE_l[ind]}")
 
     #test = np.array([[75, 1]])
     #print(test.shape)
@@ -253,10 +253,10 @@ def rain_temp_cluster(df, num_clusters=5):
         k_means.fit(total)
         SSE_list.append(k_means.inertia_)
     
-    plt.plot(np.arange(1,11),SSE_list)
-    plt.xlabel('Clusters')
-    plt.ylabel('SSE')
-    plt.show() #the ideal cluster is 3 or 5
+    # plt.plot(np.arange(1,11),SSE_list)
+    # plt.xlabel('Clusters')
+    # plt.ylabel('SSE')
+    # plt.show() #the ideal cluster is 3 or 5
 
     k_means = KMeans(n_clusters=num_clusters,init='k-means++', random_state=0)
     k_means.fit(total)
@@ -317,7 +317,9 @@ def main():
     
     df_clusterd, cluster_centers = rain_temp_cluster(df, 5) #gets the weather clusters and the cluster centers, ideally either 3 or 5
     df, bridge_dictionary = weather_bridge_precentage(df_clusterd, bridge_dict) #gets the bridge statistics
-
+    print(df)
+    print(bridge_dictionary['Documentation'])
+    print(rider_prediction(bridge_dictionary['BB']['coef'], 73,.01))
     # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_BB, X_Mt, X_Pr)
     # bridge_dict = {"BB":{"l1":l1, "l2":l2, "pr_coef":Pr_coef.tolist(), "mt_coef":Mt_coef.tolist(), "trn_mean": trn_mean.tolist(), "trn_std":trn_std.tolist()}}
     # [l1, l2, Pr_coef, Mt_coef, trn_mean, trn_std] = bridge_regression(Y_MB, X_Mt, X_Pr)
@@ -329,6 +331,10 @@ def main():
     
     # with open("bridge_weather_coef.txt", "w") as file:
     #     file.write(json.dumps(bridge_dict))
+
+    #cluster_rider_prcnt * market_share == weight for each bridge
+    #sum up the weight and dived by the number of number of dataset
+
 
     
     
