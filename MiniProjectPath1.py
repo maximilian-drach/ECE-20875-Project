@@ -383,7 +383,7 @@ def main():
     df_clusterd, cluster_centers = rain_temp_cluster(df, 5) #gets the weather clusters and the cluster centers, ideally either 3 or 5
     df, bridge_dictionary = weather_bridge_precentage(df_clusterd, bridge_dictionary) #gets the bridge statistics to append to the dictionary
     bridge_ranking_list = ranking_func(df, bridge_dictionary)
-    
+
     #print(df)
     #print(bridge_dictionary['Documentation'])
 
