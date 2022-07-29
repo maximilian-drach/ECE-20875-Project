@@ -23,6 +23,12 @@ plt.grid()
 plt.xlabel('Average Temperature ($^\circ$F)')
 plt.ylabel('Total Bike Traffic')
 plt.title('Average Temperature Vs. Total Bike Traffic')
+
+#trendline
+p = np.polyfit(x, y, 1)
+trendline = np.poly1d(p)
+plt.plot(x, trendline(x))
+
 plt.show()
 
 #VISUAL 2
