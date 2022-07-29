@@ -3,6 +3,7 @@ import os.path
 import math as m
 import pandas as pd
 import numpy as np
+from regex import W
 from sklearn.cluster import KMeans, SpectralClustering
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Ridge, Lasso
@@ -317,18 +318,49 @@ def day_of_week(df, num_bicyclists):
     
     #finding average for each day, adds new column with only data from each day of the week
     df['Fridays'], df['Saturdays'], df['Sundays'], df['Mondays'], df['Tuesdays'], df['Wednesdays'], df['Thursdays'] = pd.DataFrame(df['Total'][0::7]), pd.DataFrame(df['Total'][1::7]), pd.DataFrame(df['Total'][2::7]), pd.DataFrame(df['Total'][3::7]), pd.DataFrame(df['Total'][4::7]), pd.DataFrame(df['Total'][5::7]), pd.DataFrame(df['Total'][6::7])
-    friday_data, saturday_data, sunday_data, monday_data, tuesday_data, wednesday_data, thursday_data = df['Fridays'], df['Saturdays'], df['Sundays'], df['Mondays'], df['Tuesdays'], df['Wednesdays'], df['Thursdays']
-    friday_avg, saturday_avg, sunday_avg, monday_avg, tuesday_avg, wednesday_avg, thursday_avg = int(friday_data.mean()), int(saturday_data.mean()), int(sunday_data.mean()), int(monday_data.mean()), int(tuesday_data.mean()), int(wednesday_data.mean()), int(thursday_data.mean())
+    friday_data, saturday_data, sunday_data, monday_data, tuesday_data, wednesday_data, thursday_data = (df['Fridays'], df['Saturdays'], df['Sundays'], df['Mondays'], df['Tuesdays'], df['Wednesdays'], df['Thursdays'])
+    friday_avg, saturday_avg, sunday_avg, monday_avg, tuesday_avg, wednesday_avg, thursday_avg = (int(friday_data.mean()), int(saturday_data.mean()), int(sunday_data.mean()), int(monday_data.mean()), int(tuesday_data.mean()), int(wednesday_data.mean()), int(thursday_data.mean()))
     
     daily_avg_dictionary = {friday_avg:'Friday', saturday_avg:'Saturday', sunday_avg:'Sunday', monday_avg:'Monday', tuesday_avg:'Tuesday', wednesday_avg:'Wednesday', thursday_avg:'Thursday'} #dictionary to map each average value to outputtable string
     traffic = lambda input_traffic: daily_avg_dictionary.get(min(daily_avg_dictionary, key = lambda x: abs(x - input_traffic))) #finds which value is the least distance from the input value
     return traffic(num_bicyclists)
+
+def ranking_func(df, bridge_dictionary):
+    #print(df.shape)
+    BB_day_score = []
+    MB_day_score = []
+    WB_day_score = []
+    QB_day_score = []
+
+    for i in range(df.shape[0]):
+        cluster_value = df.loc[i,['weather_cluster']].tolist()[0]
+        BBmarket_share,MBmarket_share,WBmarket_share,QBmarket_share = df.loc[i, ['BB_share','MB_share','WB_share','QB_share']].tolist()
+        BBcluster_prcnt, MBcluster_prcnt, WBcluster_prcnt, QBcluster_prcnt = [bridge_dictionary['BB']['stats']['cluster_rider_percentage'][cluster_value], bridge_dictionary['MB']['stats']['cluster_rider_percentage'][cluster_value], bridge_dictionary['WB']['stats']['cluster_rider_percentage'][cluster_value], bridge_dictionary['QB']['stats']['cluster_rider_percentage'][cluster_value]]
+        BB_day_score.append(BBmarket_share*BBcluster_prcnt)
+        MB_day_score.append(MBmarket_share*MBcluster_prcnt)
+        WB_day_score.append(WBmarket_share*WBcluster_prcnt)
+        QB_day_score.append(QBmarket_share*QBcluster_prcnt)
+    
+    total_sum_scores_dict = {'BB':sum(BB_day_score), 'MB':sum(MB_day_score), 'WB':sum(WB_day_score), 'QB':sum(QB_day_score)}
+    bridge_scores_ranked = {}
+    for i in range(4):#find the max values from unsorted list
+        max_value = max(total_sum_scores_dict, key=total_sum_scores_dict.get)
+        bridge_scores_ranked[max_value] = total_sum_scores_dict[max_value]
+        del total_sum_scores_dict[max_value]
+    
+    bridge_ranked_stats_list = []
+    for i in range(4):#extracts the indo from the dictionary
+        bridge_rank_info = [i+1, list(bridge_scores_ranked.keys())[i], list(bridge_scores_ranked.values())[i]]
+        bridge_ranked_stats_list.append(bridge_rank_info)
+    
+    return bridge_ranked_stats_list
 
 def main():
     [df, X_Lt,X_Ht,X_Mt,X_Pr, Y_BB,Y_MB,Y_QB,Y_WB] = data()
     
     #bassically saves computing time, and sees if the time consuming bridge prediction is already written 
     #if not it computes it and saves it to a json, to save time 
+
     if (os.path.exists("bridge_weather_coef.json")):
         with open("bridge_weather_coef.json") as file:
             bridge_dictionary = json.loads(file.read())
@@ -350,9 +382,10 @@ def main():
     
     df_clusterd, cluster_centers = rain_temp_cluster(df, 5) #gets the weather clusters and the cluster centers, ideally either 3 or 5
     df, bridge_dictionary = weather_bridge_precentage(df_clusterd, bridge_dictionary) #gets the bridge statistics to append to the dictionary
-
-    print(df)
-    print(bridge_dictionary['Documentation'])
+    bridge_ranking_list = ranking_func(df, bridge_dictionary)
+    
+    #print(df)
+    #print(bridge_dictionary['Documentation'])
 
     #cluster_rider_prcnt * market_share == weight for each bridge
     #sum up the weight and dived by the number of number of dataset
