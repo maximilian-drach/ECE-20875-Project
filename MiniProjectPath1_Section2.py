@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 #VISUAL 1
 dfTempVsTraffic = pd.read_csv('NYC_Bicycle_Counts_2016_Corrected.csv', usecols = ['High Temp', 'Low Temp', 'Total'])
