@@ -301,7 +301,6 @@ def weather_bridge_precentage(df_clusterd, bridge_dict):
         cluster_df.append(cluster_list)
     cluster_df = pd.DataFrame(cluster_df)#create df from the cluster info list
     
-    print(total_riders)
 
     for i in range(4): #gets cluster percentage
         cluster_df[f"{i}p"] = cluster_df[i] / total_riders[i]
